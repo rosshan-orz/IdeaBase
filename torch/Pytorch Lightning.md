@@ -6,3 +6,27 @@
 所以就有了 Pytorch Lightning（后文简称PL）。PL最大的特征是抽象化的系统设计。它的好处是可复用性强，易维护，逻辑清晰等。缺点也很明显，这个包需要学习和理解的内容比较多，而且需要你抛开数据流的思路，重新看待代码的设计。这不会影响训练的形式，但是仍然需要去适应。
 
 ## 使用
+
+```mermaid
+graph TD
+    A[main.py] --> B[定义Parser参数]
+    A --> C[初始化Callbacks]
+    B --> D[实例化MInterface]
+    B --> E[实例化DInterface]
+    C --> F[实例化Trainer]
+    D --> F
+    E --> F
+    F --> G[Trainer.fit]
+
+    subgraph model/
+        D --> H[model_interface.py]
+        H -->|导入| I[具体模型类]
+        H --> J[实现LightningModule方法]
+    end
+
+    subgraph data/
+        E --> K[data_interface.py]
+        K -->|导入| L[具体Dataset类]
+        K --> M[实现LightningDataModule方法]
+    end
+```
