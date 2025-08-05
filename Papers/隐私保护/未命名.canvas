@@ -1,4 +1,7 @@
 {
-	"nodes":[],
+	"nodes":[
+		{"id":"2242691b4bf3880f","x":300,"y":-320,"width":640,"height":507,"type":"file","file":"Pasted image 20250806043344.png"},
+		{"id":"656cdb351727c705","x":380,"y":260,"width":400,"height":400,"type":"link","url":"https://zhuanlan.zhihu.com/p/1933899649334359587"}
+	],
 	"edges":[]
 }
