@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行为生物特征数据匿名化技术综述 | ScienceOne</title>
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #93c5fd;
+            --secondary: #7e22ce;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --accent: #14b8a6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #1a2c5c 0%, #0f172a 100%);
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(126, 34, 206, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--primary-light);
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .info-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .info-card i {
+            font-size: 2.5rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+        }
+        
+        .info-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .info-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        section {
+            margin-bottom: 5rem;
+        }
+        
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+            color: var(--primary-light);
+        }
+        
+        h3 {
+            font-size: 1.6rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--accent);
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .section-intro {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+        }
+        
+        .chart-container {
+            height: 350px;
+            margin: 1.5rem 0;
+            position: relative;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .highlight {
+            background: rgba(20, 184, 166, 0.15);
+            padding: 0.5rem 1rem;
+            border-left: 3px solid var(--accent);
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .highlight-data {
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .tech-category {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.7);
+            transition: all 0.3s ease;
+        }
+        
+        .tech-category:hover {
+            background: rgba(37, 99, 235, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .tech-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(20, 184, 166, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        
+        .tech-content {
+            flex: 1;
+        }
+        
+        .tech-title {
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-bottom: 0.3rem;
+        }
+        
+        .formula-box {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 3px solid var(--accent);
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+        
+        .footnote {
+            font-size: 0.85rem;
+            color: rgba(148, 163, 184, 0.8);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        .application-badge {
+            display: inline-block;
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-light);
+            border: 1px solid var(--primary-light);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-size: 0.85rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .metric-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            transform: translateY(-3px);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--accent);
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: var(--primary-light);
+        }
+        
+        .future-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .future-card {
+            background: rgba(20, 184, 166, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(20, 184, 166, 0.3);
+        }
+        
+        .future-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+        }
+        
+        .future-card h4 i {
+            margin-right: 0.8rem;
+        }
+        
+        .footer {
+            background: linear-gradient(to top, #0b1120 0%, #1a2c5c 100%);
+            padding: 4rem 2rem 2.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(37, 99, 235, 0.2);
+            position: relative;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer p {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            color: rgba(148, 163, 184, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        .glow {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 1;
+        }
+        
+        .glow-primary {
+            background: var(--primary);
+            top: -100px;
+            right: 15%;
+        }
+        
+        .glow-secondary {
+            background: var(--secondary);
+            bottom: -100px;
+            left: 15%;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 280px;
+            }
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background: rgba(37, 99, 235, 0.8);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            border: none;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        
+        .button:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="glow glow-primary"></div>
+        <div class="glow glow-secondary"></div>
+        <div class="header-content">
+            <h1>行为生物特征数据匿名化技术综述</h1>
+            <p class="subtitle">基于系统文献综述的隐私保护技术与评估框架深度分析</p>
+            <div class="info-grid">
+                <div class="info-card">
+                    <i class="fas fa-database"></i>
+                    <h3>364篇文献分析</h3>
+                    <p>覆盖IEEE Xplore、ACM Digital Library等权威数据库</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-user-shield"></i>
+                    <h3>6类行为特征</h3>
+                    <p>语音、步态、手部动作、眼动、心电、脑电</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>17%隐私提升</h3>
+                    <p>语音匿名化使EER从2%提升至17%</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-project-diagram"></i>
+                    <h3>8大研究方向</h3>
+                    <p>涵盖技术方案、评估框架及未来挑战</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <!-- 研究概述 -->
+        <section id="intro">
+            <h2><i class="fas fa-book-open"></i> 研究概述</h2>
+            <p class="section-intro">本研究系统性总结了行为生物特征数据匿名化的最新进展与技术方法，涵盖364篇初始文献的筛选流程，142篇符合标准的研究深入分析。研究构建了双维度分类法——按隐私目标（身份保护/属性保护）和技术类型（随机扰动/噪声注入/特征移除等），并对六类行为特征数据的匿名化方法进行跨领域比较。</p>
+            
+            <div class="grid-2col">
+                <div class="card">
+                    <h3>研究背景</h3>
+                    <p>人类行为特征（如语音、步态、手势等）具有高度独特性，可作为生物特征标识，但同时与情绪、健康状况等敏感属性强相关。随着可穿戴设备和混合现实技术的普及，行为数据采集规模扩大带来了严重的隐私泄露风险。</p>
+                    
+                    <div class="highlight">
+                        <p>核心矛盾体现在：医疗诊断需要高精度步态数据，但同一数据可能泄露患者的帕金森病症状；语音助手依赖声纹识别，却可能暴露用户的性别或情绪状态。</p>
+                    </div>
+                    
+                    <p>研究特别指出，行为数据的<strong class="highlight-data">时间序列特性</strong>和<strong class="highlight-data">生理依赖性</strong>使得传统匿名化方法易被相关性分析破解。当前研究覆盖严重不平衡，语音匿名化有142项研究，而眼动追踪和脑电波匿名化技术仅零星可见。</p>
+                </div>
+                
+                <div class="card">
+                    <h3>研究方法论</h3>
+                    <p>遵循<strong class="highlight-data">Kitchenham指南</strong>进行系统性文献综述，筛选流程包含六项严格条件：</p>
+                    <ol>
+                        <li>同行评审：仅纳入学术期刊或会议论文</li>
+                        <li>数据可获取性：来源权威数据库</li>
+                        <li>语言限制：仅英文文献</li>
+                        <li>去重原则：后续研究替代早期工作</li>
+                        <li>技术聚焦：专注数据发布场景匿名化</li>
+                        <li>细节充分性：排除缺乏实施细节的研究</li>
+                    </ol>
+                    <div class="highlight">
+                        <p>通过双维度分类框架对研究成果进行系统分析：<br> 
+                        <strong>隐私目标维度</strong>：身份保护 vs. 属性保护<br>
+                        <strong>技术类型维度</strong>：随机扰动 vs. 确定性方法 vs. 混合方法</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行为生物特征分类 -->
+        <section id="biometric-data">
+            <h2><i class="fas fa-fingerprint"></i> 行为生物特征分类</h2>
+            <div class="card">
+                <p>研究揭示了六类主要行为生物特征及其匿名化需求：</p>
+                
+                <div class="chart-container">
+                    <canvas id="biometricChart"></canvas>
+                </div>
+                
+                <div class="grid-2col">
+                    <div>
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-microphone-alt"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">语音（Voice）</div>
+                                <ul>
+                                    <li>作为研究最充分的领域（142项研究），语音数据包含<strong>声纹识别信息</strong>（身份标识）和<strong>语义内容</strong>（敏感属性）。</li>
+                                    <li>医疗场景需保留语音病理特征（如帕金森患者的颤音），而声纹匿名化需将<strong>等错误率（EER）从2%提升至17%</strong>以阻隔身份关联。</li>
+                                    <li>技术挑战包括噪声注入对语音自然度（MOS评分）与可懂度（WER需<5%）的平衡。</li>
+                                </ul>
+                                
+                                <h4>实现方法</h4>
+                                <ul>
+                                    <li><strong>随机扰动</strong>：添加拉普拉斯噪声或白噪声</li>
+                                    <li><strong>频带过滤</strong>：保留1.5-2.5kHz和3.5-4.5kHz关键子带</li>
+                                    <li><strong>说话人转换</strong>：GMM-UBM模型映射到目标说话人特征</li>
+                                    <li><strong>对抗训练</strong>：CycleGAN分离身份特征</li>
+                                </ul>
+                                
+                                <div>
+                                    <span class="application-badge">虚拟助手</span>
+                                    <span class="application-badge">医疗数据共享</span>
+                                    <span class="application-badge">公共空间录音</span>
+                                    <span class="application-badge">反语音伪造</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-walking"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">步态（Gait）</div>
+                                <ul>
+                                <li>行走模式在医疗诊断（如步态分析）与安防监控中具有高价值，但<strong>步态周期参数</strong>可能泄露帕金森病等健康状况。</li>
+                                <li>研究指出，传统匿名化方法易被<strong>时间序列相关性分析</strong>破解，需开发动态噪声调节技术。</li>
+                                <li>当前缺乏针对步态隐私的标准化评估框架。</li>
+                            </ul>
+                            
+                            <h4>实现方法</h4>
+                            <ul>
+                                <li><strong>随机混洗</strong>：模糊承诺方案打乱时序数据</li>
+                                <li><strong>特征选择</strong>：保留频域特征(能量、熵)</li>
+                                <li><strong>视频模糊</strong>：高斯滤波处理轮廓特征</li>
+                                <li><strong>GAN合成</strong>：SP-GAN生成合成步态序列</li>
+                            </ul>
+                            
+                                <div>
+                                    <span class="application-badge">帕金森远程监测</span>
+                                    <span class="application-badge">跌倒检测系统</span>
+                                    <span class="application-badge">健身追踪器</span>
+                                    <span class="application-badge">安防监控</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-hand-point-up"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">手部动作（Hand Motion）</div>
+                                <ul>
+                                    <li>包括手势识别与手部运动轨迹，广泛应用于VR/AR交互系统。</li>
+                                    <li>其隐私风险源于<strong>动作模式与职业习惯</strong>的强关联（如外科医生的精细操作）。</li>
+                                    <li>匿名化需保留动作功能性（如手势指令识别率）的同时，模糊个体特异性特征。</li>
+                                </ul>
+                                
+                                <h4>实现方法</h4>
+                                <ul>
+                                    <li><strong>本地差分隐私</strong>：添加时序噪声</li>
+                                    <li><strong>采样率降低</strong>：减少生物特征细节</li>
+                                    <li><strong>模板保护</strong>：卷积签名加密</li>
+                                    <li><strong>对抗训练</strong>：双编码器分离特征</li>
+                                </ul>
+                                
+                                <div>
+                                    <span class="application-badge">远程康复训练</span>
+                                    <span class="application-badge">脑机接口</span>
+                                    <span class="application-badge">VR手柄控制</span>
+                                    <span class="application-badge">手语通信</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-eye"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">眼动（Eye Gaze）</div>
+                                <ul>
+                                    <li>眼球运动模式的研究覆盖率最低，仅有零星技术方案。</li>
+                                    <li>眼动数据<strong>采样率降至100Hz</strong>可使识别率从98%降至55%，但会损失注视点分析精度。</li>
+                                    <li>未来需开发兼顾<strong>时空特性保护</strong>的匿名化算法。</li>
+                                </ul>
+                                
+                                <h4>实现方法</h4>
+                                <ul>
+                                    <li><strong>傅里叶扰动算法</strong>：分块噪声注入</li>
+                                    <li><strong>时空降采样</strong>：量化凝视角度</li>
+                                    <li><strong>k-same合成</strong>：聚类平均样本</li>
+                                    <li><strong>热图聚合</strong>：高斯噪声处理</li>
+                                </ul>
+                                
+                                <div>
+                                    <span class="application-badge">VR/AR应用</span>
+                                    <span class="application-badge">阿尔茨海默症诊断</span>
+                                    <span class="application-badge">用户体验优化</span>
+                                    <span class="application-badge">广告效果评估</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-heartbeat"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">心电（Heartbeat）</div>
+                                <ul>
+                                    <li>心脏电信号既用于身份认证，也包含心律失常等敏感健康信息。</li>
+                                    <li>匿名化需控制<strong>百分比均方根差（PRD）</strong>以维持临床诊断价值。</li>
+                                    <li>研究建议采用<strong>分段加噪策略</strong>，对P-QRS-T波区别处理。</li>
+                                </ul>
+                                
+                                <h4>实现方法</h4>
+                                <ul>
+                                    <li><strong>压缩感知</strong>：随机测量矩阵</li>
+                                    <li><strong>频域变换</strong>：低频系数剔除</li>
+                                    <li><strong>GAN合成</strong>：生成身份中性样本</li>
+                                    <li><strong>k-匿名化</strong>：聚类最近邻聚合</li>
+                                </ul>
+                                
+                                <div>
+                                    <span class="application-badge">可穿戴设备监测</span>
+                                    <span class="application-badge">远程心脏病诊断</span>
+                                    <span class="application-badge">流行病学研究</span>
+                                    <span class="application-badge">生物识别认证</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-category">
+                            <div class="tech-icon"><i class="fas fa-brain"></i></div>
+                            <div class="tech-content">
+                                <div class="tech-title">脑电（Brain Activity）</div>
+                                <ul>
+                                    <li>脑波模式在身份识别与精神状态监测中具有双重作用。</li>
+                                    <li>典型案例显示，匿名化需将<strong>酗酒分类准确率从90.6%降至0.6%</strong>以保护属性隐私。</li>
+                                    <li>当前技术瓶颈在于<strong>跨频段相关性保护</strong>，需改进差分隐私在连续脑电流中的应用。</li>
+                                </ul>
+                                
+                                <h4>实现方法</h4>
+                                <ul>
+                                    <li><strong>对抗训练</strong>：梯度反转层</li>
+                                    <li><strong>DP-SGD</strong>：噪声梯度下降</li>
+                                    <li><strong>符号序列</strong>：k-匿名化量化</li>
+                                    <li><strong>特征过滤</strong>：小波低频剔除</li>
+                                </ul>
+                                
+                                <div>
+                                    <span class="application-badge">癫痫监测系统</span>
+                                    <span class="application-badge">精神疾病诊断</span>
+                                    <span class="application-badge">脑机接口</span>
+                                    <span class="application-badge">神经科学研究</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 匿名化技术分类 -->
+        <section id="anonymization-tech">
+            <h2><i class="fas fa-user-secret"></i> 匿名化技术分类</h2>
+            <div class="card">
+                <p>基于142项研究的系统分析，行为生物特征数据匿名化技术可分为六类核心方法：</p>
+                
+                <div class="chart-container">
+                    <canvas id="techRadarChart"></canvas>
+                </div>
+                
+                <div class="grid-2col">
+                    <div>
+                        <h3>随机扰动</h3>
+                        <p>对原始数据进行非结构化修改，如语音特征向量洗牌、步态序列随机重排等。</p>
+                        <p><strong>优势：</strong> 实现简单，计算开销小</p>
+                        <p><strong>局限：</strong> 易被关联分析破解，隐私保护程度有限</p>
+                    </div>
+                    
+                    <div>
+                        <h3>噪声注入</h3>
+                        <p>添加统计噪声（如拉普拉斯噪声）实现差分隐私，平衡隐私保护与数据效用。</p>
+                        <p><strong>应用：</strong> 在语音数据中添加白噪声或掩蔽噪声（Babble Masker）</p>
+                        <p><strong>挑战：</strong> 噪声大小需根据隐私预算精细调节</p>
+                    </div>
+                </div>
+                
+                <div class="grid-2col">
+                    <div>
+                        <h3>特征移除</h3>
+                        <p>删除高识别性特征，如步态中的头部运动数据、语音中的特定频段（子带过滤）。</p>
+                        <p class="highlight">Jourdan等发现加速度计信号中，时域特征对身份识别贡献度达90%，删除后身份泄露风险降低50%，活动识别仅损失9%</p>
+                    </div>
+                    
+                    <div>
+                        <h3>连续转换</h3>
+                        <p>使用GAN或变分自编码器生成合成数据，实现特征空间的连续映射。</p>
+                        <p><strong>应用：</strong> CycleGAN将情感语音转换为中性语音，情绪识别率从70%降至20%</p>
+                        <p><strong>局限：</strong> 语音清晰度平均下降15%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心公式展示 -->
+        <section id="formulas">
+            <h2><i class="fas fa-superscript"></i> 核心公式展示</h2>
+            <div class="card">
+                <div class="grid-2col">
+                    <div>
+                        <h3>语音匿名化</h3>
+                        <div class="formula-box">
+                            α = k × σ(f₀) 
+                            <div class="footnote">其中 α 是缩放因子，σ(f₀) 是基频均方差</div>
+                        </div>
+                        <div class="formula-box">
+                            X_anon = D(E_s(S), E_e(f₀)) 
+                            <div class="footnote">E_s: 频谱编码器, E_e: 激励编码器, D: 解码器</div>
+                        </div>
+                        
+                        <h3 style="margin-top: 1.5rem;">步态匿名化</h3>
+                        <div class="formula-box">
+                            D̃_{i,j} = D_{i,j} + Lap(Δf / ε) 
+                            <div class="footnote">D_{i,j}: DTW距离矩阵, Δf: 敏感度, ε: 隐私预算</div>
+                        </div>
+                        <div class="formula-box">
+                            min_C Σ min_{c_j∈C} ||x_i - c_j||² 
+                            <div class="footnote">C: 聚类中心, x_i: 步态特征向量</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>手部动作</h3>
+                        <div class="formula-box">
+                            L = L_task - λL_id 
+                            <div class="footnote">L_task: 任务分类损失, L_id: 身份分类损失</div>
+                        </div>
+                        <div class="formula-box">
+                            h_task, h_id = Enc(x) 
+                            <div class="footnote">h_task: 任务特征, h_id: 身份特征</div>
+                        </div>
+                        
+                        <h3 style="margin-top: 1.5rem;">眼动特征匿名化</h3>
+                        <div class="formula-box">
+                            ε_eff = ε₀ × w/T
+                            <div class="footnote">w: 时间窗口, T: 总时长, ε₀: 初始隐私预算</div>
+                        </div>
+                        <div class="formula-box">
+                            X̃(k) = X(k) + N(0, σ²)
+                            <div class="footnote">X(k): 傅里叶变换, σ: 噪声标准差</div>
+                        </div>
+                        
+                        <h3 style="margin-top: 1.5rem;">脑电匿名化</h3>
+                        <div class="formula-box">
+                            ḡ = g/max(1, ||g||₂ / C) + N(0, σ²C²I) 
+                            <div class="footnote">g: 梯度, C: 裁剪阈值, σ: 噪声参数</div>
+                        </div>
+                        <div class="formula-box">
+                            min L_rec + λ max L_id 
+                            <div class="footnote">L_rec: 重构损失, L_id: 身份识别损失</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 技术性能对比 -->
+        <section id="comparison">
+            <h2><i class="fas fa-chart-bar"></i> 技术性能综合对比</h2>
+            
+            <div class="card">
+                <div class="grid-2col">
+                    <div class="chart-container">
+                        <canvas id="privacyStrengthChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="computeComplexityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container" style="height: 200px; margin: 0 16rem;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                
+                <div class="grid-2col" style="margin-top: 24rem;">
+                    <div style="background: rgba(30, 41, 59, 0.7); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(148, 163, 184, 0.1);">
+                        <h3 style="margin-top: 0; color: var(--primary-light);"><i class="fas fa-lightbulb me-2"></i>核心发现</h3>
+                        <ul style="padding-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;">对抗生成与差分隐私技术在语音和脑电匿名化中表现最佳，实现隐私强度与应用效用的有效平衡</li>
+                            <li style="margin-bottom: 0.5rem;">特征移除与转换在步态和手部动作中效率更高，适合资源受限场景</li>
+                            <li style="margin-bottom: 0.5rem;">眼动特征的时间依赖性导致差分隐私预算耗尽问题，需创新解决方案</li>
+                            <li>脑电特征匿名化存在最高计算复杂度，但在医疗隐私保护领域潜力最大</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.7); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(148, 163, 184, 0.1);">
+                        <h3 style="margin-top: 0; color: var(--primary-light);"><i class="fas fa-arrow-alt-circle-right me-2"></i>未来方向</h3>
+                        <div class="future-grid">
+                            <div class="future-card">
+                                <h4><i class="fas fa-hourglass-half"></i> 时序数据处理</h4>
+                                <p>开发针对行为数据时间依赖性的专用方法，如动态时间规整结合差分隐私</p>
+                            </div>
+                            
+                            <div class="future-card">
+                                <h4><i class="fas fa-users-cog"></i> 跨社区协作</h4>
+                                <p>建立类似VoicePrivacy的标准评估框架，统一指标和数据集</p>
+                            </div>
+                            
+                            <div class="future-card">
+                                <h4><i class="fas fa-random"></i> 技术融合</h4>
+                                <p>生成模型（如CycleGAN）与安全多方计算结合，实现分布式场景隐私保护</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 隐私保护评估 -->
+        <section id="privacy-metrics">
+            <h2><i class="fas fa-balance-scale"></i> 隐私保护评估</h2>
+            <div class="card">
+                <h3>隐私目标与评估方法</h3>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-id-card" style="font-size: 2.5rem; color: var(--accent);"></i>
+                        <div class="metric-label">身份保护</div>
+                        <div class="metric-value">17% EER</div>
+                        <p>语音匿名化需将EER从2%提升至17%</p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <i class="fas fa-venus-mars" style="font-size: 2.5rem; color: var(--accent);"></i>
+                        <div class="metric-label">属性保护</div>
+                        <div class="metric-value">0.6% 准确率</div>
+                        <p>脑电匿名化将酗酒分类准确率从90.6%降至0.6%</p>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <i class="fas fa-chart-bar" style="font-size: 2.5rem; color: var(--accent);"></i>
+                        <div class="metric-label">识别率降低</div>
+                        <div class="metric-value">55%</div>
+                        <p>眼动数据采样率降至100Hz后识别率从98%降至55%</p>
+                    </div>
+                </div>
+                
+                <h3>核心评估指标</h3>
+                <div class="grid-2col">
+                    <div>
+                        <h4>隐私性指标</h4>
+                        <ul>
+                            <li><strong>EER（等错误率）</strong>：错误接受率与错误拒绝率相等时的阈值</li>
+                            <li><strong>FAR（错误接受率）</strong>：非目标用户被错误接受的概率</li>
+                            <li><strong>Cllr（对数似然比代价）</strong>：综合评估说话人验证系统性能</li>
+                            <li><strong>攻击成功率</strong>：重识别攻击成功比例</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>功能效用指标</h4>
+                        <ul>
+                            <li><strong>MOS（自然度评分）</strong>：主观语音质量评估</li>
+                            <li><strong>WER（词错误率）</strong>：语音匿名化后内容可懂度指标，需低于5%</li>
+                            <li><strong>PRD（百分比均方根差）</strong>：ECG信号重构失真度</li>
+                            <li><strong>任务性能</strong>：身份验证准确率等</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="highlight">
+                    <p><strong>方法论局限：</strong> 61%研究未考虑攻击者知晓匿名化机制的情况（弱对抗假设）；数据集偏差明显（如MIT-BIH ECG数据集样本量不足）</p>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="privacyUtilityChart"></canvas>
+                </div>
+                <p class="footnote">注：X轴表示隐私保护强度提升，Y轴表示数据效用保留程度，点的大小代表技术成熟度</p>
+            </div>
+        </section>
+
+        <!-- 术语对照表 -->
+        <section id="terms">
+            <h2><i class="fas fa-book"></i> 术语对照表</h2>
+            <div class="card">
+                <p>研究建立了跨学科术语体系，覆盖行为生物特征数据隐私保护的核心概念：</p>
+                
+                <div style="max-height: 500px; overflow-y: auto; margin: 2rem 0; border: 1px solid rgba(148, 163, 184, 0.1); border-radius: 8px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.1); background: rgba(37, 99, 235, 0.1); font-weight: 600;">英文术语</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.1); background: rgba(37, 99, 235, 0.1); font-weight: 600;">中文翻译</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.1); background: rgba(37, 99, 235, 0.1); font-weight: 600;">定义与应用场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">Behavioral Biometric Data</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">行为生物特征数据</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">通过人类行为模式（如语音、步态、手势等）采集的独特生物标识</td>
+                            </tr>
+                            <tr style="background: rgba(30, 41, 59, 0.5);">
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">MFCC</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">梅尔频率倒谱系数</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">语音信号的特征表示方法，用于捕捉声谱的宏观结构</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">Gait Cycle</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">步态周期</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">包括站立相和摆动相，步态分析的基础单元</td>
+                            </tr>
+                            <tr style="background: rgba(30, 41, 59, 0.5);">
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">X-vector</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">X向量</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">深度神经网络提取的说话人嵌入向量，用于匿名化声纹</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">Differential Privacy</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">差分隐私</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">通过添加噪声（如拉普拉斯机制）限制数据关联性</td>
+                            </tr>
+                            <tr style="background: rgba(30, 41, 59, 0.5);">
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">k-anonymity</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">k-匿名性</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">确保数据集至少k个记录共享相同准标识符，防止个体唯一性暴露</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">Speaker Transformation</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">说话人转换</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">通过GMM或GAN将源说话人声纹映射至目标声纹</td>
+                            </tr>
+                            <tr style="background: rgba(30, 41, 59, 0.5);">
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">Frequency Warping</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">频率弯曲</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">调整声道的共振频率以改变语音特征</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">EER</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">等错误率</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">错误接受率与错误拒绝率相等时的阈值，衡量身份保护效果</td>
+                            </tr>
+                            <tr style="background: rgba(30, 41, 59, 0.5);">
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">WER</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">词错误率</td>
+                                <td style="padding: 1rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">语音匿名化后的内容可懂度指标</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="footnote">注：此表为摘要版本，完整术语表包含67项专业术语</p>
+            </div>
+        </section>
+
+        <!-- 挑战与未来方向 -->
+        <section id="challenges">
+            <h2><i class="fas fa-road"></i> 挑战与未来方向</h2>
+            <div class="card">
+                <h3>当前技术局限性</h3>
+                
+                <div class="chart-container">
+                    <canvas id="challengesChart"></canvas>
+                </div>
+                
+                <div class="grid-2col">
+                    <div>
+                        <h4>时间依赖性处理不足</h4>
+                        <p>仅12%的研究（如Hirose的步态周期扰动）探索了时间序列重排</p>
+                        <p>多数方法未扰动时间序列的时序关系（如步态周期），可能被逆向工程破解</p>
+                    </div>
+                    
+                    <div>
+                        <h4>跨模态关联风险</h4>
+                        <p>多生物特征组合（如语音+步态）的匿名化尚无系统解决方案</p>
+                        <p>匿名化数据与社交媒体等公开数据关联可能导致再识别风险</p>
+                    </div>
+                </div>
+                
+                <h3>未来研究方向</h3>
+                <div class="future-grid">
+                    <div class="future-card">
+                        <h4><i class="fas fa-cogs"></i> 动态隐私预算</h4>
+                        <p>改进差分隐私以支持连续数据流（如w-event隐私），根据数据敏感度动态调整噪声级别</p>
+                    </div>
+                    
+                    <div class="future-card">
+                        <h4><i class="fas fa-user-friends"></i> 用户中心设计</h4>
+                        <p>整合用户隐私偏好（如Steil眼动数据共享意愿调查），开发情境感知的隐私控制策略</p>
+                    </div>
+                    
+                    <div class="future-card">
+                        <h4><i class="fas fa-chart-pie"></i> 标准化评估框架</h4>
+                        <p>推动类似VoicePrivacy Challenge的社区倡议，建立跨研究可比性基准</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>本报告基于《03.Anonymization Techniques for Behavioral Biometric Data A Survey.pdf》的系统性解析与研究</p>
+            <p>采用系统性文献综述方法，涵盖364篇文献的深度分析</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 行为特征成熟度饼图
+            const biometricCtx = document.getElementById('biometricChart').getContext('2d');
+            const biometricChart = new Chart(biometricCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['语音识别', '步态分析', '手部动作', '眼动追踪', '心电图', '脑电波'],
+                    datasets: [{
+                        data: [45, 20, 15, 8, 7, 5],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(20, 184, 166, 0.8)',
+                            'rgba(126, 34, 206, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#e0e0e0',
+                                padding: 20,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '不同行为生物特征技术成熟度分布',
+                            color: '#f1f5f9',
+                            font: {
+                                size: 16,
+                                weight: '500'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 技术分类雷达图
+            const techRadarCtx = document.getElementById('techRadarChart').getContext('2d');
+            const techRadarChart = new Chart(techRadarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['语音匿名化', '步态保护', '手势处理', '眼动隐私', '心电保护', '脑电匿名'],
+                    datasets: [{
+                        label: '随机扰动',
+                        data: [70, 40, 60, 30, 20, 25],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 0.8)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: '噪声注入',
+                        data: [80, 35, 30, 45, 60, 50],
+                        backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                        borderColor: 'rgba(20, 184, 166, 0.8)',
+                        pointBackgroundColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: '特征移除',
+                        data: [65, 75, 85, 40, 65, 30],
+                        backgroundColor: 'rgba(126, 34, 206, 0.2)',
+                        borderColor: 'rgba(126, 34, 206, 0.8)',
+                        pointBackgroundColor: 'rgba(126, 34, 206, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(148, 163, 184, 0.3)'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            },
+                            pointLabels: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 隐私-效用平衡散点图
+            const privacyUtilityCtx = document.getElementById('privacyUtilityChart').getContext('2d');
+            const privacyUtilityChart = new Chart(privacyUtilityCtx, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        label: '随机扰动',
+                        data: [{
+                            x: 65,
+                            y: 85,
+                            r: 15
+                        }],
+                        backgroundColor: 'rgba(37, 99, 235, 0.7)'
+                    }, {
+                        label: '噪声注入',
+                        data: [{
+                            x: 80,
+                            y: 70,
+                            r: 18
+                        }],
+                        backgroundColor: 'rgba(20, 184, 166, 0.7)'
+                    }, {
+                        label: '特征移除',
+                        data: [{
+                            x: 70,
+                            y: 65,
+                            r: 20
+                        }],
+                        backgroundColor: 'rgba(126, 34, 206, 0.7)'
+                    }, {
+                        label: '连续转换',
+                        data: [{
+                            x: 90,
+                            y: 60,
+                            r: 16
+                        }],
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)'
+                    }, {
+                        label: '混合方法',
+                        data: [{
+                            x: 85,
+                            y: 75,
+                            r: 12
+                        }],
+                        backgroundColor: 'rgba(245, 158, 11, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '隐私保护强度',
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            min: 50,
+                            max: 100
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '数据效用保留',
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 14
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            min: 50,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const x = context.parsed.x;
+                                    const y = context.parsed.y;
+                                    return `${label}: 隐私强度 ${x}%, 数据效用 ${y}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 技术挑战图表
+            const challengesCtx = document.getElementById('challengesChart').getContext('2d');
+            const challengesChart = new Chart(challengesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['时间依赖性', '跨模态关联', '弱对抗假设', '数据集偏差', '公平性问题'],
+                    datasets: [{
+                        label: '研究覆盖程度(%)',
+                        data: [12, 18, 39, 57, 22],
+                        backgroundColor: 'rgba(20, 184, 166, 0.7)',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // 隐私强度柱状图
+            const privacyCtx = document.getElementById('privacyStrengthChart').getContext('2d');
+            new Chart(privacyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['语音', '步态', '手势', '眼动', '心电', '脑电'],
+                    datasets: [{
+                        label: '隐私强度',
+                        data: [4, 3, 3, 3, 4, 5],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(20, 184, 166, 0.7)',
+                            'rgba(126, 34, 206, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: '隐私保护强度对比',
+                            font: { size: 18 },
+                            color: '#f1f5f9'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { 
+                                stepSize: 1,
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 计算复杂度柱状图
+            const computeCtx = document.getElementById('computeComplexityChart').getContext('2d');
+            new Chart(computeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['语音', '步态', '手势', '眼动', '心电', '脑电'],
+                    datasets: [{
+                        label: '计算复杂度',
+                        data: [3, 4, 3, 3, 4, 5],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(20, 184, 166, 0.7)',
+                            'rgba(126, 34, 206, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(16, 185, 129, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: '计算复杂度对比',
+                            font: { size: 18 },
+                            color: '#f1f5f9'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { 
+                                stepSize: 1,
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.2)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.8)'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 多维雷达图
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['隐私强度', '计算复杂度', '抗攻击能力', '数据效用保留', '技术成熟度'],
+                    datasets: [
+                        {
+                            label: '语音特征',
+                            data: [4, 3, 3, 3, 4],
+                            fill: true,
+                            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                            borderColor: '#4e73df',
+                            pointBackgroundColor: '#4e73df'
+                        },
+                        {
+                            label: '步态特征',
+                            data: [3, 4, 2, 3, 3],
+                            fill: true,
+                            backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                            borderColor: '#1cc88a',
+                            pointBackgroundColor: '#1cc88a'
+                        },
+                        {
+                            label: '手部动作',
+                            data: [3, 3, 3, 4, 3],
+                            fill: true,
+                            backgroundColor: 'rgba(54, 185, 204, 0.2)',
+                            borderColor: '#36b9cc',
+                            pointBackgroundColor: '#36b9cc'
+                        },
+                        {
+                            label: '眼动特征',
+                            data: [3, 3, 2, 4, 2],
+                            fill: true,
+                            backgroundColor: 'rgba(246, 194, 62, 0.2)',
+                            borderColor: '#f6c23e',
+                            pointBackgroundColor: '#f6c23e'
+                        },
+                        {
+                            label: '心电特征',
+                            data: [4, 4, 4, 4, 3],
+                            fill: true,
+                            backgroundColor: 'rgba(231, 74, 59, 0.2)',
+                            borderColor: '#e74a3b',
+                            pointBackgroundColor: '#e74a3b'
+                        },
+                        {
+                            label: '脑电特征',
+                            data: [5, 5, 5, 3, 4],
+                            fill: true,
+                            backgroundColor: 'rgba(111, 66, 193, 0.2)',
+                            borderColor: '#6f42c1',
+                            pointBackgroundColor: '#6f42c1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '多维度性能对比雷达图',
+                            font: { size: 18 },
+                            color: '#f1f5f9'
+                        },
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true, color: 'rgba(148, 163, 184, 0.3)' },
+                            grid: { color: 'rgba(148, 163, 184, 0.2)' },
+                            min: 0,
+                            max: 5,
+                            ticks: { stepSize: 1, backdropColor: 'transparent', color: 'rgba(148, 163, 184, 0.8)' },
+                            pointLabels: { color: '#e0e0e0' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
